@@ -12,17 +12,17 @@ provider "aws" {
 }
 
 provider "github" {
-  token = local.github-token            
+  token = local.github-token
 }
 
 data "aws_caller_identity" "current" {}
 
 locals {
-  github-email = "senelcemal61@gmail.com"                      # you need to change this line
-  github-username = "cemalsenel"                              # you need to change this line
-  github-token = "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"      # you need to change this line
-  key_pair="firstkey"            # you need to change this line
-  pem_key_address = "~/.ssh/firstkey.pem"              # you need to change this line
+  github-email    = "senelcemal61@gmail.com" # you need to change this line
+  github-username = "cemalsenel"             # you need to change this line
+  github-token    = "xxx"                    # you need to change this line
+  key_pair        = "xx"                     # you need to change this line
+  pem_key_address = "~/.ssh/xx.pem"          # you need to change this line
 }
 
 resource "github_repository" "githubrepo" {
@@ -82,12 +82,12 @@ resource "aws_iam_instance_profile" "ec2_profile" {
 }
 
 resource "aws_instance" "jenkins-server" {
-  ami             = "ami-087c17d1fe0178315"
-  instance_type   = "t2.small"
-  key_name        = local.key_pair  
+  ami           = "ami-087c17d1fe0178315"
+  instance_type = "t2.small"
+  key_name      = local.key_pair
   root_block_device {
-      volume_size = 16
-  } 
+    volume_size = 16
+  }
   security_groups = ["jenkins-sec-gr"]
   tags = {
     Name = "Jenkins-Server"
@@ -146,13 +146,13 @@ resource "aws_instance" "jenkins-server" {
       "git commit -m 'added todo app'",
       "git push https://${local.github-username}:${local.github-token}@github.com/${local.github-username}/${github_repository.githubrepo.name}",
     ]
-  connection {
-    type = "ssh"
-    user = "ec2-user"
-    private_key = file("${local.pem_key_address}")
-    host = self.public_ip
+    connection {
+      type        = "ssh"
+      user        = "ec2-user"
+      private_key = file("${local.pem_key_address}")
+      host        = self.public_ip
+    }
   }
- }
 }
 
 
@@ -163,17 +163,17 @@ output "jenkins-dns-url" {
 
 output "ssh-connection" {
   value = "ssh -i ${local.key_pair}.pem ec2-user@${aws_instance.jenkins-server.public_ip}"
- }
+}
 
 output "nodejs-url" {
   value = "http://${aws_instance.jenkins-server.public_ip}"
 }
 
 output "github-url" {
-  value = "${github_repository.githubrepo.http_clone_url}"
+  value = github_repository.githubrepo.http_clone_url
 }
 
 output "aws-account-id" {
-  value = "${data.aws_caller_identity.current.account_id}"
+  value = data.aws_caller_identity.current.account_id
 }
 
